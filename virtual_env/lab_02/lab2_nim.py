@@ -85,10 +85,11 @@ def evolutionary_strategy(state, generations, population_size):
 def main():
     """" define the game """
     player_wins = []
-    for _ in range(10):
-        # logging.getLogger().setLevel(logging.INFO)
+    number_matches = 10
+    for _ in range(number_matches):
+        logging.getLogger().setLevel(logging.INFO)
         nim = Nim(5)
-        # logging.info(f"initial state: {nim}")
+        logging.info(f"initial state: {nim}")
         
         player = 0
     
@@ -100,13 +101,13 @@ def main():
                 # Use optimal for player 1
                 ply = pure_random(nim)
             
-            # logging.info(f"player {player} plays {ply}")
+            logging.info(f"player {player} plays {ply}")
             nim.nimming(ply)
-            # logging.info(f"new state: {nim}")
+            logging.info(f"new state: {nim}")
             
             player = 1 - player
-        # logging.info(f"player {player} wins!")
+        logging.info(f"player {player} wins!")
         player_wins.append(player)
-    print(f"Player 0 wins {player_wins.count(0)} times, Player 1 wins {player_wins.count(1)} times over 10 games")
+    print(f"Player 0 wins {player_wins.count(0)} times, Player 1 wins {player_wins.count(1)} times over {number_matches} games")
 if __name__ == "__main__":
     main()
