@@ -66,19 +66,12 @@ def optimal(state: Nim) -> Nimply:
 
 def tournament_selection(population, tournament_size):
     tournament = random.sample(population, tournament_size)
-    return max(tournament, key=nim_sum)
+    return max(tournament, key=lambda m: m[1])
 
-def crossover(parent1: Nimply, parent2: Nimply) -> Nimply:
-    child_row = parent1.row if random.random() < 0.5 else parent2.row
-    child_num_objects = parent2.num_objects if random.random() < 0.5 else parent1.num_objects
-    return Nimply(child_row, child_num_objects)
-
-def mutate(move: Nimply, mutation_rate, population):
+def mutate(move, mutation_rate, population):
     if random.random() < mutation_rate:
-        mutated_num_objects = random.randint(1, move.num_objects)
-        return Nimply(move.row, mutated_num_objects)
-    else:
-        return crossover(move, random.choice(population))
+        return random.choice(population)
+    return move
 
 def evolutionary_strategy(state, generations, population_size, tournament_size, mutation_rate):
     best_move = None
@@ -87,10 +80,10 @@ def evolutionary_strategy(state, generations, population_size, tournament_size, 
     for _ in range(generations):
         population = [optimal(state) for _ in range(population_size)]
         
-        # mutated_population = [mutate(move, mutation_rate, population) for move in population]
-        # selected_population = [tournament_selection(mutated_population, tournament_size) for _ in range(population_size)]
+        mutated_population = [mutate(move, mutation_rate, population) for move in population]
+        selected_population = [tournament_selection(mutated_population, tournament_size) for _ in range(population_size)]
         
-        for move in population:
+        for move in selected_population:
             tmp_state = deepcopy(state)
             tmp_state.nimming(move)
             score = nim_sum(tmp_state)
