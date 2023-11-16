@@ -64,14 +64,33 @@ def optimal(state: Nim) -> Nimply:
     ply = random.choice(spicy_moves)
     return ply
 
-def evolutionary_strategy(state, generations, population_size):
+def tournament_selection(population, tournament_size):
+    tournament = random.sample(population, tournament_size)
+    return max(tournament, key=nim_sum)
+
+def crossover(parent1: Nimply, parent2: Nimply) -> Nimply:
+    child_row = parent1.row if random.random() < 0.5 else parent2.row
+    child_num_objects = parent2.num_objects if random.random() < 0.5 else parent1.num_objects
+    return Nimply(child_row, child_num_objects)
+
+def mutate(move: Nimply, mutation_rate, population):
+    if random.random() < mutation_rate:
+        mutated_num_objects = random.randint(1, move.num_objects)
+        return Nimply(move.row, mutated_num_objects)
+    else:
+        return crossover(move, random.choice(population))
+
+def evolutionary_strategy(state, generations, population_size, tournament_size, mutation_rate):
     best_move = None
     best_score = float("-inf")
     
     for _ in range(generations):
         population = [pure_random(state) for _ in range(population_size)]
         
-        for move in population:
+        mutated_population = [mutate(move, mutation_rate, population) for move in population]
+        selected_population = [tournament_selection(mutated_population, tournament_size) for _ in range(population_size)]
+        
+        for move in selected_population:
             tmp_state = deepcopy(state)
             tmp_state.nimming(move)
             score = nim_sum(tmp_state)
@@ -84,30 +103,35 @@ def evolutionary_strategy(state, generations, population_size):
 
 def main():
     """" define the game """
-    player_wins = []
-    number_matches = 10
-    for _ in range(number_matches):
-        logging.getLogger().setLevel(logging.INFO)
-        nim = Nim(5)
-        logging.info(f"initial state: {nim}")
-        
-        player = 0
+    POPULATION_SIZE = 5
+    OFFSPRING_SIZE = 10
+    TOURNAMENT_SIZE = 2
+    MUTATION_RATE = 0.1
     
-        while nim:
-            if player == 0:
-                # Use ES for player 0
-                ply = evolutionary_strategy(nim, generations=100, population_size=50)
-            else:
-                # Use optimal for player 1
-                ply = pure_random(nim)
-            
-            logging.info(f"player {player} plays {ply}")
-            nim.nimming(ply)
-            logging.info(f"new state: {nim}")
-            
-            player = 1 - player
-        logging.info(f"player {player} wins!")
-        player_wins.append(player)
-    print(f"Player 0 wins {player_wins.count(0)} times, Player 1 wins {player_wins.count(1)} times over {number_matches} games")
+    logging.getLogger().setLevel(logging.INFO)
+    nim = Nim(5)
+    logging.info(f"initial state: {nim}")
+    
+    player = 0
+
+    while nim:
+        if player == 0:
+            # Use ES for player 0
+            ply = evolutionary_strategy(nim, 
+                                        generations=OFFSPRING_SIZE, 
+                                        population_size=POPULATION_SIZE, 
+                                        tournament_size=TOURNAMENT_SIZE, 
+                                        mutation_rate=MUTATION_RATE)
+        else:
+            # Use optimal for player 1
+            ply = pure_random(nim)
+        
+        logging.info(f"player {player} plays {ply}")
+        nim.nimming(ply)
+        logging.info(f"new state: {nim}")
+        
+        player = 1 - player
+    logging.info(f"player {player} wins!")
+        
 if __name__ == "__main__":
     main()
