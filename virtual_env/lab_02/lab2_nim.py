@@ -85,12 +85,12 @@ def evolutionary_strategy(state, generations, population_size, tournament_size, 
     best_score = float("-inf")
     
     for _ in range(generations):
-        population = [pure_random(state) for _ in range(population_size)]
+        population = [optimal(state) for _ in range(population_size)]
         
-        mutated_population = [mutate(move, mutation_rate, population) for move in population]
-        selected_population = [tournament_selection(mutated_population, tournament_size) for _ in range(population_size)]
+        # mutated_population = [mutate(move, mutation_rate, population) for move in population]
+        # selected_population = [tournament_selection(mutated_population, tournament_size) for _ in range(population_size)]
         
-        for move in selected_population:
+        for move in population:
             tmp_state = deepcopy(state)
             tmp_state.nimming(move)
             score = nim_sum(tmp_state)
