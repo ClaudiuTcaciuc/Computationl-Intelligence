@@ -73,58 +73,78 @@ def mutate(move, mutation_rate, population):
         return random.choice(population)
     return move
 
+
 def evolutionary_strategy(state, generations, population_size, tournament_size, mutation_rate):
     best_move = None
     best_score = float("-inf")
-    
+
     for _ in range(generations):
-        population = [optimal(state) for _ in range(population_size)]
+        population = [pure_random(state) for _ in range(population_size)]
+        population += [pure_random(state) for _ in range(int(population_size * 0.2))]
         
         mutated_population = [mutate(move, mutation_rate, population) for move in population]
         selected_population = [tournament_selection(mutated_population, tournament_size) for _ in range(population_size)]
-        
+
         for move in selected_population:
             tmp_state = deepcopy(state)
             tmp_state.nimming(move)
             score = nim_sum(tmp_state)
             
+
             if score > best_score:
                 best_score = score
                 best_move = move
 
-    return best_move
+        # Update mutation rate based on performance
+        if random.random() < 0.2:
+            mutation_rate *= 1.2
+        else:
+            mutation_rate *= 0.8
+
+    return best_move, mutation_rate
 
 def main():
-    """" define the game """
-    POPULATION_SIZE = 5
-    OFFSPRING_SIZE = 10
+    """define the game"""
+    NUM_GAMES = 4
+    POPULATION_SIZE = 100
+    OFFSPRING_SIZE = 50
     TOURNAMENT_SIZE = 2
-    MUTATION_RATE = 0.1
-    
-    logging.getLogger().setLevel(logging.INFO)
-    nim = Nim(5)
-    logging.info(f"initial state: {nim}")
-    
-    player = 0
+    MUTATION_RATE = 0.15
 
-    while nim:
-        if player == 0:
-            # Use ES for player 0
-            ply = evolutionary_strategy(nim, 
-                                        generations=OFFSPRING_SIZE, 
-                                        population_size=POPULATION_SIZE, 
-                                        tournament_size=TOURNAMENT_SIZE, 
-                                        mutation_rate=MUTATION_RATE)
-        else:
-            # Use optimal for player 1
-            ply = pure_random(nim)
-        
-        logging.info(f"player {player} plays {ply}")
-        nim.nimming(ply)
-        logging.info(f"new state: {nim}")
-        
-        player = 1 - player
-    logging.info(f"player {player} wins!")
-        
+    mutation_rate = MUTATION_RATE  # Initial mutation rate
+    
+    strategy = [pure_random, gabriele, optimal]
+    for strat in strategy:
+        winner_list = []
+        for _ in range(NUM_GAMES):
+            logging.getLogger().setLevel(logging.INFO)
+            nim = Nim(5)
+            # logging.info(f"initial state: {nim}")
+
+            player = 0
+
+            while nim:
+                if player == 0:
+                    # Use ES for player 0
+                    ply, mutation_rate = evolutionary_strategy(nim,
+                                                            generations=OFFSPRING_SIZE,
+                                                            population_size=POPULATION_SIZE,
+                                                            tournament_size=TOURNAMENT_SIZE,
+                                                            mutation_rate=mutation_rate)
+                else:
+                    # Use optimal for player 1
+                    ply = strat(nim)
+
+                # logging.info(f"player {player} plays {ply}")
+                nim.nimming(ply)
+                # logging.info(f"new state: {nim}")
+
+                player = 1 - player
+            # logging.info(f"player {player} wins!")
+            winner_list.append(player)
+
+        logging.info(f"Player 0 wins {winner_list.count(0)} times")
+        logging.info(f"Player 1 wins {winner_list.count(1)} times with {strat.__name__}")
+
 if __name__ == "__main__":
     main()
