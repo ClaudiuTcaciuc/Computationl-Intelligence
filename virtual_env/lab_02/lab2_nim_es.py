@@ -119,7 +119,7 @@ def main():
         for _ in range(NUM_GAMES):
             logging.getLogger().setLevel(logging.INFO)
             nim = Nim(5)
-            # logging.info(f"initial state: {nim}")
+            logging.info(f"initial state: {nim}")
 
             player = 0
 
@@ -135,12 +135,12 @@ def main():
                     # Use optimal for player 1
                     ply = strat(nim)
 
-                # logging.info(f"player {player} plays {ply}")
+                logging.info(f"player {player} plays {ply}")
                 nim.nimming(ply)
-                # logging.info(f"new state: {nim}")
+                logging.info(f"new state: {nim}")
 
                 player = 1 - player
-            # logging.info(f"player {player} wins!")
+            logging.info(f"player {player} wins!")
             winner_list.append(player)
 
         logging.info(f"Player 0 wins {winner_list.count(0)} times")
