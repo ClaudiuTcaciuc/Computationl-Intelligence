@@ -104,12 +104,12 @@ def train_players(player1: Player, player2: Player, epochs: int = 2_000): # trie
         if isinstance(player2, QLearningPlayer):
             player2.update_q_value(player2.get_state(game), player2.get_best_move(player2.get_state(game)), (reward*-1), player2.get_state(game))
         
-    #     if epoch % (1/10*epochs) == 0:
-    #         print(f"percent complete: {epoch / epochs * 100}%")
+        if epoch % (1/10*epochs) == 0:
+            print(f"percent complete: {epoch / epochs * 100}%")
             
-    # print("Training complete.")
+    print("Training complete.")
 
-def testing_q_learning_players(player1: Player, player2: Player, epochs: int = 1_000):
+def testing_players(player1: Player, player2: Player, epochs: int = 1_000):
     """ Test the Q-learning player against a random player or another Q-learning player """
     print("Testing Q-learning players...")
     player_1_wins = 0
@@ -141,11 +141,11 @@ def Q_learning_strategy():
     
     train_players(player1, player2)
     print("---- Q-learning 1 vs Q-learning 2 ----")
-    testing_q_learning_players(player1, player2)
+    testing_players(player1, player2)
     print("---- Q-learning 1 vs Random ----")
-    testing_q_learning_players(player1, player3)
+    testing_players(player1, player3)
     print("---- Q-learning 2 vs Random ----")
-    testing_q_learning_players(player2, player3)
+    testing_players(player2, player3)
     
     print("train a new q-learning player against a random player")
     player1 = QLearningPlayer(0.1, 0.9, 0.1)
@@ -153,7 +153,7 @@ def Q_learning_strategy():
     
     train_players(player1, player2)
     print("---- Q-learning 1 vs Random ----")
-    testing_q_learning_players(player1, player2)
+    testing_players(player1, player2)
     
 def find_best_parameters():
     # 1 hour 30 minutes
@@ -170,7 +170,7 @@ def find_best_parameters():
     for (a, g, e) in product(alpha, gamma, epsilon):
         player1 = QLearningPlayer(a, g, e)
         train_players(player1, player3, epochs=1_000)
-        wins = testing_q_learning_players(player1, player3)
+        wins = testing_players(player1, player3)
         if wins > best_wins:
             best_wins = wins
             best_params = (a, g, e)
