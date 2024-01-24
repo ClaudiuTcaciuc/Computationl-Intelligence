@@ -2,11 +2,20 @@ import random
 
 import numpy as np
 from game import Game, Move, Player
+from q_learning import QLearningPlayer
 from itertools import product
 
 """ Strategy to implement:
-    - Q-learning
-    - Monte Carlo
+    - Q-learning -> done
+        - best parameters: (0.6, 0.5, 0.3) found by computing train and test 
+            accuracy for different values of alpha, gamma, and epsilon
+        - used 2_000 epochs for training and 1_000 epochs for testing
+        - trained by playing against another Q-learning player
+        - uses a Q-table to store the Q-values for each state-action pair
+
+    - Monte Carlo Tree Search
+        - https://www.wikiwand.com/it/Ricerca_ad_albero_Monte_Carlo
+        
     - Genetic Algorithm
 """
 
@@ -19,76 +28,6 @@ class RandomPlayer(Player):
         move = random.choice([Move.TOP, Move.BOTTOM, Move.LEFT, Move.RIGHT])
         return from_pos, move
 
-
-class MyPlayer(Player):
-    def __init__(self) -> None:
-        super().__init__()
-
-    def make_move(self, game: 'Game') -> tuple[tuple[int, int], Move]:
-        from_pos = (random.randint(0, 4), random.randint(0, 4))
-        move = random.choice([Move.TOP, Move.BOTTOM, Move.LEFT, Move.RIGHT])
-        return from_pos, move
-
-class QLearningPlayer(Player):
-    def __init__(self, alpha: float, gamma: float, epsilon: float) -> None:
-        """ Initialize the Q-learning player 
-            - alpha: learning rate
-            - gamma: discount factor
-            - epsilon: exploration rate
-            
-        """
-        super().__init__()
-        self._alpha = alpha
-        self._gamma = gamma
-        self._epsilon = epsilon
-        self._q_table = {}  # Q-table to store the Q-values for each state-action pair
-        self._epoch = 0
-    
-    def evolve_parameters(self) -> None:
-        """ Evolve the parameters of the Q-learning player """
-        pass
-    
-    def get_state(self, game: 'Game') -> tuple:
-        """ Get the current state of the game """
-        
-        board_state = tuple(map(tuple, game.get_board()))
-        current_player = game.get_current_player()
-        return board_state, current_player
-    
-    def get_q_value(self, state: tuple, action: Move) -> float:
-        """ Get the Q-value for a given state-action pair """
-        return self._q_table.get((state, action), 0.0)
-    
-    def get_best_move(self, state: tuple) -> Move:
-        """ Get the best move for a given state """
-        possible_moves = [Move.TOP, Move.BOTTOM, Move.LEFT, Move.RIGHT]
-        best_move = max(possible_moves, key=lambda move: self.get_q_value(state, move))
-        return best_move
-
-    def choose_random_position(self, game:'Game') -> tuple[int, int]:
-        """ Choose a random position on the board """
-        return (random.randint(0, 4), random.randint(0, 4))
-    
-    def make_move(self, game: 'Game') -> tuple[tuple[int, int], Move]:
-        """ Make a move """
-        current_state = self.get_state(game)
-        
-        if random.uniform(0, 1) < self._epsilon:
-            # Explore
-            action = random.choice([Move.TOP, Move.BOTTOM, Move.LEFT, Move.RIGHT])
-        else:
-            # Exploit
-            action = self.get_best_move(current_state)
-        
-        from_pos = self.choose_random_position(game)
-        return from_pos, action
-    
-    def update_q_value(self, state: tuple, action: Move, reward: float, next_state: tuple) -> None:
-        """ Update the Q-value for a given state-action pair """
-        current_q_value = self.get_q_value(state, action)
-        max_next_q_value = max(self.get_q_value(next_state, next_action) for next_action in [Move.TOP, Move.BOTTOM, Move.LEFT, Move.RIGHT])
-        new_q_value = current_q_value + self._alpha * (reward + self._gamma * max_next_q_value - current_q_value)
-        self._q_table[(state, action)] = new_q_value
 
 def train_players(player1: Player, player2: Player, epochs: int = 2_000): # tried 10_000 but the results were the same
     """ Train the players against each other """
@@ -110,7 +49,7 @@ def train_players(player1: Player, player2: Player, epochs: int = 2_000): # trie
     print("Training complete.")
 
 def testing_players(player1: Player, player2: Player, epochs: int = 1_000):
-    """ Test the Q-learning player against a random player or another Q-learning player """
+    """ Test the player against another player """
     print("Testing Q-learning players...")
     player_1_wins = 0
     player_2_wins = 0
@@ -178,6 +117,12 @@ def find_best_parameters():
         print(f"percent complete: {count / (len(alpha)*len(gamma)*len(epsilon)) * 100}%")
     
     print(f"Best parameters: {best_params}")
+
+class MCTSPlayer(Player):
+    def __init__(self, num_simulations: int = 1_000) -> None:
+        super().__init__()
+        self._num_simulations = num_simulations
+
 
 if __name__ == '__main__':
     Q_learning_strategy()
