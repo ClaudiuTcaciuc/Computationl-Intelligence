@@ -1,8 +1,10 @@
+from copy import deepcopy
 import random
 
 import numpy as np
 from game import Game, Move, Player
 from q_learning import QLearningPlayer
+from mcts import MCTSPlayer
 from itertools import product
 
 """ Strategy to implement:
@@ -15,6 +17,8 @@ from itertools import product
 
     - Monte Carlo Tree Search
         - https://www.wikiwand.com/it/Ricerca_ad_albero_Monte_Carlo
+        - https://www.geeksforgeeks.org/ml-monte-carlo-tree-search-mcts/
+        - https://medium.com/@quasimik/monte-carlo-tree-search-applied-to-letterpress-34f41c86e238#:~:text=In%20the%20selection%20phase%2C%20MCTS,values%20for%20each%20child%20node.
         
     - Genetic Algorithm
 """
@@ -118,11 +122,10 @@ def find_best_parameters():
     
     print(f"Best parameters: {best_params}")
 
-class MCTSPlayer(Player):
-    def __init__(self, num_simulations: int = 1_000) -> None:
-        super().__init__()
-        self._num_simulations = num_simulations
-
-
 if __name__ == '__main__':
-    Q_learning_strategy()
+    player1 = MCTSPlayer()
+    player2 = RandomPlayer()
+    
+    game = Game()
+    winner = game.play(player1, player2)
+    print(winner)
