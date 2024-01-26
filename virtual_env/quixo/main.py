@@ -4,7 +4,7 @@ import random
 import numpy as np
 from game import Game, Move, Player
 from q_learning import QLearningPlayer
-from mcts import MCTSPlayer
+from genetic import GeneticPlayer
 from itertools import product
 
 """ Strategy to implement:
@@ -14,11 +14,6 @@ from itertools import product
         - used 2_000 epochs for training and 1_000 epochs for testing
         - trained by playing against another Q-learning player
         - uses a Q-table to store the Q-values for each state-action pair
-
-    - Monte Carlo Tree Search
-        - https://www.wikiwand.com/it/Ricerca_ad_albero_Monte_Carlo
-        - https://www.geeksforgeeks.org/ml-monte-carlo-tree-search-mcts/
-        - https://medium.com/@quasimik/monte-carlo-tree-search-applied-to-letterpress-34f41c86e238#:~:text=In%20the%20selection%20phase%2C%20MCTS,values%20for%20each%20child%20node.
         
     - Genetic Algorithm
 """
@@ -123,9 +118,12 @@ def find_best_parameters():
     print(f"Best parameters: {best_params}")
 
 if __name__ == '__main__':
-    player1 = MCTSPlayer()
+    player1 = GeneticPlayer()
     player2 = RandomPlayer()
     
     game = Game()
     winner = game.play(player1, player2)
+    game.print()
+    for move in player1.best_moves:
+        print(move, player1.best_moves[move])
     print(winner)
