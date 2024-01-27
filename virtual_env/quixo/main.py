@@ -118,12 +118,29 @@ def find_best_parameters():
     print(f"Best parameters: {best_params}")
 
 if __name__ == '__main__':
-    player1 = GeneticPlayer()
+    player1 = GeneticPlayer(train=1)
     player2 = RandomPlayer()
-    
+    player1_wins = 0
+    player2_wins = 0
     game = Game()
+    for i in range(20):
+        winner = game.play(player1, player2)
+        player1_wins += 1 if winner == 0 else 0
+        player2_wins += 1 if winner == 1 else 0
+        print(f"iter: {i}")
+        
+    print(f"Player 1 wins: {player1_wins}")
+    print(f"Player 2 wins: {player2_wins}")
+    player1_wins = 0
+    player2_wins = 0
+    for i in range(10):
+        winner = game.play(player1, player2)
+        player1_wins += 1 if winner == 0 else 0
+        player2_wins += 1 if winner == 1 else 0
+        print(f"iter: {i}")
+        
+    print(f"Player 1 wins: {player1_wins}")
+    print(f"Player 2 wins: {player2_wins}")
     winner = game.play(player1, player2)
     game.print()
-    for move in player1.best_moves:
-        print(move, player1.best_moves[move])
     print(winner)
