@@ -4,7 +4,7 @@ import random
 import numpy as np
 from game import Game, Move, Player
 from q_learning import QLearningPlayer
-from genetic import GeneticPlayer
+from genetic_algorithm import GeneticPlayer
 from itertools import product
 
 """ Strategy to implement:
@@ -15,7 +15,10 @@ from itertools import product
         - trained by playing against another Q-learning player
         - uses a Q-table to store the Q-values for each state-action pair
         
-    - Genetic Algorithm
+    - Genetic Algorithm -> done 
+    
+    - Project need a refactoring
+    - Write a .md file
 """
 
 class RandomPlayer(Player):
@@ -116,31 +119,59 @@ def find_best_parameters():
         print(f"percent complete: {count / (len(alpha)*len(gamma)*len(epsilon)) * 100}%")
     
     print(f"Best parameters: {best_params}")
+    
+def genetic_algorithm_strategy():
+    player1 = GeneticPlayer()
+    player2 = RandomPlayer()
+    game = Game()
+    player1_wins = 0
+    player2_wins = 0
+    print("------ Genetic Algorithm (with memory) vs Random -----")
+    for i in range(1000):
+        winner = game.play(player1, player2)
+        player1_wins += 1 if winner == 0 else 0
+        player2_wins += 1 if winner == 1 else 0
+        # if i % 10 == 0:
+        #     print(f"percent complete: {i / 100 * 100}%")
+        
+    print(f"Player 1 wins: {player1_wins}")
+    print(f"Player 2 wins: {player2_wins}")
+    
+    player1 = GeneticPlayer(memory=0)
+    player2 = RandomPlayer()
+    game = Game()
+    player1_wins = 0
+    player2_wins = 0
+    print("------ Genetic Algorithm (without memory) vs Random -----")
+    for i in range(1000):
+        winner = game.play(player1, player2)
+        player1_wins += 1 if winner == 0 else 0
+        player2_wins += 1 if winner == 1 else 0
+        # if i % 10 == 0:
+        #     print(f"percent complete: {i / 100 * 100}%")
+    
+    print(f"Player 1 wins: {player1_wins}")
+    print(f"Player 2 wins: {player2_wins}")
+    
+    player1 = GeneticPlayer()
+    player2 = QLearningPlayer(0.6, 0.5, 0.3)
+    player3 = RandomPlayer()
+    game = Game()
+    player1_wins = 0
+    player2_wins = 0
+    train_players(player2, player3, epochs=1_000)
+    player1_wins = 0
+    player2_wins = 0
+    print("------ Genetic Algorithm (with memory) vs Q-learning -----")
+    for i in range(1000):
+        winner = game.play(player1, player2)
+        player1_wins += 1 if winner == 0 else 0
+        player2_wins += 1 if winner == 1 else 0
+        # if i % 10 == 0:
+        #     print(f"percent complete: {i / 100 * 100}%")
+            
+    print(f"Player 1 wins: {player1_wins}")
+    print(f"Player 2 wins: {player2_wins}")
 
 if __name__ == '__main__':
-    player1 = GeneticPlayer(train=1)
-    player2 = RandomPlayer()
-    player1_wins = 0
-    player2_wins = 0
-    game = Game()
-    for i in range(20):
-        winner = game.play(player1, player2)
-        player1_wins += 1 if winner == 0 else 0
-        player2_wins += 1 if winner == 1 else 0
-        print(f"iter: {i}")
-        
-    print(f"Player 1 wins: {player1_wins}")
-    print(f"Player 2 wins: {player2_wins}")
-    player1_wins = 0
-    player2_wins = 0
-    for i in range(10):
-        winner = game.play(player1, player2)
-        player1_wins += 1 if winner == 0 else 0
-        player2_wins += 1 if winner == 1 else 0
-        print(f"iter: {i}")
-        
-    print(f"Player 1 wins: {player1_wins}")
-    print(f"Player 2 wins: {player2_wins}")
-    winner = game.play(player1, player2)
-    game.print()
-    print(winner)
+    genetic_algorithm_strategy()
