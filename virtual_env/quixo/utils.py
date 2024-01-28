@@ -1,8 +1,12 @@
 from copy import deepcopy
+import random
 import numpy as np
 from game import Move, Game
 
 def verifie_move(from_pos: tuple[int, int], slide: Move, game: Game) -> bool:
+    """
+        It checks if the move is valid, an invalid move is useless, so there is no point in computing it
+    """
     from_pos = (from_pos[1], from_pos[0])
     player_id = game.get_current_player()
     
@@ -45,7 +49,11 @@ def verifie_move(from_pos: tuple[int, int], slide: Move, game: Game) -> bool:
     return acceptable
 
 def simulate_move(from_pos: tuple[int, int], slide: Move, game: 'Game') -> np.array:
-    acceptable = verifie_move(from_pos, slide, game)
+    """
+        It computes the next board after the action is taken
+    """
+    copy_game = deepcopy(game)
+    acceptable = verifie_move(from_pos, slide, copy_game)
     
     # should not happen check move before entering here
     if not acceptable:
@@ -53,7 +61,6 @@ def simulate_move(from_pos: tuple[int, int], slide: Move, game: 'Game') -> np.ar
     
     from_pos = (from_pos[1], from_pos[0])
     
-    copy_game = deepcopy(game)
     copy_board = copy_game.get_board()
     
     piece = copy_game.get_current_player()
@@ -79,37 +86,26 @@ def simulate_move(from_pos: tuple[int, int], slide: Move, game: 'Game') -> np.ar
     return copy_board
 
 def fitness(from_pos: tuple[int, int], slide: Move, game: 'Game') -> int:
+    """
+        It computes the next board after the action is taken
+        and then calculates the score for each row, column, and diagonal
+        and then takes the maximum score
+    """
     copy_board = simulate_move(from_pos, slide, game)
     if copy_board is None:
         return -1
 
     piece = game.get_current_player()
-    opponent_piece = 0 if piece == 1 else 1
 
-    def calculate_score(line: np.ndarray) -> int:
-        # Calculate score for a row, column, or diagonal
-        score = 0
-        length = len(line)
-        contiguous_count = 0
-
-        for i in range(length):
-            if line[i] == piece:
-                contiguous_count += 1
-                score += contiguous_count
-            else:
-                contiguous_count = 0
-                if line[i] == opponent_piece:
-                    # Penalty for opponent's piece in the line
-                    score -= 1
-
-        return score
-
-    row_score = np.sum(np.apply_along_axis(calculate_score, 1, copy_board))
-    col_score = np.sum(np.apply_along_axis(calculate_score, 0, copy_board))
-    principal_diag_score = calculate_score(np.diag(copy_board))
-    secondary_diag_score = calculate_score(np.diag(np.fliplr(copy_board)))
-
-    # Summing up scores with penalties
-    score = row_score + col_score + principal_diag_score + secondary_diag_score
-
+    count_row = np.max(np.sum(copy_board == piece, axis=1))
+    count_col = np.max(np.sum(copy_board == piece, axis=0))
+    count_diag = np.max(np.sum(np.diag(copy_board) == piece))
+    count_diag_2 = np.max(np.sum(np.diag(np.fliplr(copy_board)) == piece))
+    
+    score = max(count_row, count_col, count_diag, count_diag_2)
+    
+    # introduce some randomness
+    if random.uniform(0, 1) < 0.1:
+        return random.randint(-5, 5)
+    
     return score
