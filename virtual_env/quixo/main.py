@@ -7,6 +7,8 @@ from q_learning import QLearningPlayer
 from genetic_algorithm import GeneticPlayer
 from itertools import product
 
+from utils import fitness
+
 """ Strategy to implement:
     - Q-learning -> done
         - best parameters: (0.6, 0.5, 0.3) found by computing train and test 
@@ -31,26 +33,19 @@ class RandomPlayer(Player):
         return from_pos, move
 
 
-def train_players(player1: Player, player2: Player, epochs: int = 2_000): # tried 10_000 but the results were the same
+def train_players(player1: Player, player2: Player, epochs: int = 500): # tried 10_000 but the results were the same
     """ Train the players against each other """
     print("Training players...")
     for epoch in range(epochs):
         game = Game()
-        winner = game.play(player1, player2)
-        
-        reward = 1 if winner == 0 else -1
-        
-        if isinstance(player1, QLearningPlayer):
-            player1.update_q_value(player1.get_state(game), player1.get_best_move(player1.get_state(game)), reward, player1.get_state(game))
-        if isinstance(player2, QLearningPlayer):
-            player2.update_q_value(player2.get_state(game), player2.get_best_move(player2.get_state(game)), (reward*-1), player2.get_state(game))
+        game.play(player1, player2)
         
         if epoch % (1/10*epochs) == 0:
             print(f"percent complete: {epoch / epochs * 100}%")
             
     print("Training complete.")
 
-def testing_players(player1: Player, player2: Player, epochs: int = 1_000):
+def testing_players(player1: Player, player2: Player, epochs: int = 100):
     """ Test the player against another player """
     print("Testing Q-learning players...")
     player_1_wins = 0
@@ -58,9 +53,9 @@ def testing_players(player1: Player, player2: Player, epochs: int = 1_000):
 
     # turn off exploration
     if isinstance(player1, QLearningPlayer):
-        player1._epsilon = 0
+        player1._epsilon = 0.1
     if isinstance(player2, QLearningPlayer):
-        player2._epsilon = 0
+        player2._epsilon = 0.1
 
     for _ in range(epochs):
         game = Game()
@@ -82,6 +77,8 @@ def Q_learning_strategy():
     
     train_players(player1, player2)
     print("---- Q-learning 1 vs Q-learning 2 ----")
+    for entry in player1._q_table:
+        print(entry, player1._q_table[entry])
     testing_players(player1, player2)
     print("---- Q-learning 1 vs Random ----")
     testing_players(player1, player3)
@@ -127,7 +124,7 @@ def genetic_algorithm_strategy():
     player1_wins = 0
     player2_wins = 0
     print("------ Genetic Algorithm (with memory) vs Random -----")
-    for i in range(1000):
+    for i in range(10):
         winner = game.play(player1, player2)
         player1_wins += 1 if winner == 0 else 0
         player2_wins += 1 if winner == 1 else 0
@@ -143,7 +140,7 @@ def genetic_algorithm_strategy():
     player1_wins = 0
     player2_wins = 0
     print("------ Genetic Algorithm (without memory) vs Random -----")
-    for i in range(1000):
+    for i in range(10):
         winner = game.play(player1, player2)
         player1_wins += 1 if winner == 0 else 0
         player2_wins += 1 if winner == 1 else 0
@@ -163,7 +160,7 @@ def genetic_algorithm_strategy():
     player1_wins = 0
     player2_wins = 0
     print("------ Genetic Algorithm (with memory) vs Q-learning -----")
-    for i in range(1000):
+    for i in range(10):
         winner = game.play(player1, player2)
         player1_wins += 1 if winner == 0 else 0
         player2_wins += 1 if winner == 1 else 0
@@ -174,4 +171,5 @@ def genetic_algorithm_strategy():
     print(f"Player 2 wins: {player2_wins}")
 
 if __name__ == '__main__':
-    genetic_algorithm_strategy()
+    #genetic_algorithm_strategy()
+    Q_learning_strategy()
