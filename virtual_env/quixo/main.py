@@ -28,6 +28,7 @@ def play_game(args):
 def genetic_algorithm_strategy():
     player1 = GeneticPlayer()
     player2 = RandomPlayer()
+    player3 = GeneticPlayer(memory=0)
 
     num_games = 100
     
@@ -41,8 +42,6 @@ def genetic_algorithm_strategy():
     player1_wins = results.count(0)
 
     print(f"Genetic Player winrate: {(player1_wins / num_games * 100):.2f}% against Random Player\n")
-
-    player3 = GeneticPlayer(memory=0)
 
     print("------ Genetic Algorithm (without memory) vs Random -----")
     args_list = [(player3, player2) for _ in range(num_games)]
