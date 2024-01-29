@@ -2,7 +2,6 @@ import random
 from game import Player, Move, Game
 from utils import verifie_move, fitness
 
-
 class GeneticPlayer(Player):
     def __init__(self, population_size=50, generations=10, memory=1) -> None:
         super().__init__()
@@ -33,7 +32,7 @@ class GeneticPlayer(Player):
 
         return best_from_pos, best_slide
     
-    def __generate_random_population(self, game: 'Game') -> list(tuple[tuple[int, int], Move]):
+    def __generate_random_population(self, game: 'Game') -> list[tuple[tuple[int, int], Move]]:
         population = []
         for _ in range(self.population_size):
             while True:

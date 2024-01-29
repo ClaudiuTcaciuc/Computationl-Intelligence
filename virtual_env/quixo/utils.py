@@ -48,7 +48,7 @@ def verifie_move(from_pos: tuple[int, int], slide: Move, game: Game) -> bool:
     acceptable: bool = acceptable_top or acceptable_bottom or acceptable_left or acceptable_right
     return acceptable
 
-def simulate_move(from_pos: tuple[int, int], slide: Move, game: 'Game') -> np.array:
+def simulate_move(from_pos: tuple[int, int], slide: Move, game: 'Game') -> np.ndarray | None:
     """
         It computes the next board after the action is taken
     """
@@ -103,9 +103,4 @@ def fitness(from_pos: tuple[int, int], slide: Move, game: 'Game') -> int:
     count_diag_2 = np.max(np.sum(np.diag(np.fliplr(copy_board)) == piece))
     
     score = max(count_row, count_col, count_diag, count_diag_2)
-    
-    # introduce some randomness
-    if random.uniform(0, 1) < 0.1:
-        return random.randint(-5, 5)
-    
     return score
