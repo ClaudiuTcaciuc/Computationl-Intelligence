@@ -5,6 +5,9 @@ from utils import verifie_move
 class RandomPlayer(Player):
     def __init__(self) -> None:
         super().__init__()
+    
+    def name(self) -> str: 
+        return "Random Player"
 
     def make_move(self, game: 'Game') -> tuple[tuple[int, int], Move]:
         while True:

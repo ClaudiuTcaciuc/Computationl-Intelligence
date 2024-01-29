@@ -10,6 +10,11 @@ class GeneticPlayer(Player):
         self.best_moves = {}
         self.memory = memory
     
+    def name(self) -> str:
+        if self.memory:
+            return "Genetic Player with Memory"
+        return "Genetic Player without Memory"
+    
     def make_move(self, game: 'Game') -> tuple[tuple[int, int], Move]:
         current_board = tuple(map(tuple, game.get_board()))
         

@@ -1,0 +1,23 @@
+---- Training Q-Learning Player against Genetic Player with Memory ----
+---- Testing Q-Learning Player against Genetic Player with Memory ----
+Q-Learning Player wins: 0
+Genetic Player with Memory wins: 100
+
+---- Training Q-Learning Player against Random Player ----
+---- Testing Q-Learning Player against Random Player ----
+Q-Learning Player wins: 78
+Random Player wins: 22
+
+---- Testing Genetic Player with Memory against Random Player ----
+Genetic Player with Memory wins: 99
+Random Player wins: 1
+
+---- Testing Genetic Player with Memory against Genetic Player without Memory ----
+Genetic Player with Memory wins: 72
+Genetic Player without Memory wins: 28
+
+---- Testing Genetic Player without Memory against Random Player ----
+Genetic Player without Memory wins: 100
+Random Player wins: 0
+
+---- Total execution time 117.50869846343994 seconds ----

@@ -12,6 +12,9 @@ class QLearningPlayer(Player):
         self.q_table = {}
         self.history = []
     
+    def name(self) -> str:
+        return "Q-Learning Player"
+    
     def make_move(self, game: 'Game') -> tuple[tuple[int, int], Move]:
         current_state = tuple(map(tuple, game.get_board()))
         
@@ -35,12 +38,20 @@ class QLearningPlayer(Player):
     
     def __exploit(self, current_state: tuple, game: 'Game') -> tuple[tuple[int, int], Move]:
         current_state = tuple(map(tuple, current_state))
-
-        state = self.q_table.get(current_state)
-        if not state:
-            return self.__explore(game)
         
-        return state["from_pos"], state["move"]
+        state = self.q_table.get(current_state)
+        if state is not None:
+            from_pos = state["from_pos"]
+            move = state["move"]
+            if verifie_move(from_pos, move, game):
+                return from_pos, move
+
+        while True:
+            possible_moves = [Move.TOP, Move.BOTTOM, Move.LEFT, Move.RIGHT]
+            from_pos = (random.randint(0, 4), random.randint(0, 4))
+            move = max(possible_moves, key=lambda move: fitness(from_pos, move, game))
+            if verifie_move(from_pos, move, game):
+                return from_pos, move
 
     def update_q_table(self, reward: float, game: Game) -> None:
         for state, from_pos, move in reversed(self.history):

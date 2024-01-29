@@ -5,107 +5,84 @@ from player.qlearn_player import QLearningPlayer
 from tqdm import tqdm
 import time
 
-""" Strategy to implement:
-    - Q-learning -> done
-        - best parameters: (0.6, 0.5, 0.3) found by computing train and test 
-            accuracy for different values of alpha, gamma, and epsilon
-        - used 2_000 epochs for training and 1_000 epochs for testing
-        - trained by playing against another Q-learning player
-        - uses a Q-table to store the Q-values for each state-action pair
-        
-    - Genetic Algorithm -> done 
-    
-    - Project need a refactoring
-    - Write a .md file
-"""
-
-
 def play_game(args):
     player_1, player_2 = args
     game = Game()
     winner = game.play(player_1, player_2)
     
-    reward = 100 if winner == 0 else -10
+    reward = 10 if winner == 0 else -1
     if isinstance(player_1, QLearningPlayer):
         player_1.update_q_table(reward, game)
     
     return winner
 
-def genetic_algorithm_strategy():
-    player1 = GeneticPlayer()
-    player2 = RandomPlayer()
-    player3 = GeneticPlayer(memory=0)
-
-    num_games = 100
-    
-    print("------ Genetic Algorithm (with memory) vs Random -----")
-    args_list = [(player1, player2) for _ in range(num_games)]
+def play_games(player1: Player, player2: Player, num_epochs: int = 100):
+    args_list = [(player1, player2) for _ in range(num_epochs)]
     
     results = []
-    for args in tqdm(args_list, total=num_games, desc="Games Played"):
+    for args in tqdm(args_list, total=num_epochs, desc="Playing games"):
         results.append(play_game(args))
-
-    player1_wins = results.count(0)
-
-    print(f"Genetic Player winrate: {(player1_wins / num_games * 100):.2f}% against Random Player\n")
-
-    print("------ Genetic Algorithm (without memory) vs Random -----")
-    args_list = [(player3, player2) for _ in range(num_games)]
-    
-    results = []
-    for args in tqdm(args_list, total=num_games, desc="Games Played"):
-        results.append(play_game(args))
-
-    player1_wins = results.count(0)
-
-    print(f"Genetic Player winrate: {(player1_wins / num_games * 100):.2f}% against Random Player\n")
-    
-    print("------ Genetic Algorithm (with memory) vs Genetic Algorithm (without memory) -----")
-    args_list = [(player1, player3) for _ in range(num_games)]
-    
-    results = []
-    for args in tqdm(args_list, total=num_games, desc="Games Played"):
-        results.append(play_game(args))
-
-    player1_wins = results.count(0)
-    
-    print(f"Genetic Player winrate: {(player1_wins / num_games * 100):.2f}% against Genetic Player (without memory)\n")
-
-def q_learn_strategy(player1: QLearningPlayer, player2: Player, epochs: int = 200, test: bool = False):
-    num_games = epochs
-    args_list = [(player1, player2) for _ in range(num_games)]
-    
-    if test and isinstance(player1, QLearningPlayer):
-        player1.exploration_prob = 0
-    if test and isinstance(player2, QLearningPlayer):
-        player2.exploration_prob = 0
-    
-    results = []
-    for args in tqdm(args_list, total=num_games, desc="Games Played"):
-        results.append(play_game(args))
-
-    player1_wins = results.count(0)
-    
-    # if isinstance(player1, QLearningPlayer):
-    #     for entry in player1.q_table:
-    #         print(entry, player1.q_table[entry])
         
-    if test:
-        print(f"Q-learning Player winrate: {(player1_wins / num_games * 100):.2f}% against Random Player\n")
-    else:
-        print("train done")
+    player1_wins = results.count(0)
+    player2_wins = results.count(1)
+    
+    return player1_wins, player2_wins
+
+def main():
+    start_time = time.time()
+    player1 = QLearningPlayer()
+    player2 = GeneticPlayer()
+    player3 = RandomPlayer()
+    player4 = GeneticPlayer(memory=0)
+    
+    # train QLearningPlayer against GeneticPlayer
+    print(f"---- Training {player1.name()} against {player2.name()} ----")
+    play_games(player1, player2, num_epochs=200)
+    
+    # test QLearningPlayer against GeneticPlayer
+    print(f"---- Testing {player1.name()} against {player2.name()} ----")
+    
+    if isinstance(player1, QLearningPlayer):
+        player1.exploration_prob = 0
+    
+    player1_wins, player2_wins = play_games(player1, player2, num_epochs=100)
+    print(f"{player1.name()} wins: {player1_wins}")
+    print(f"{player2.name()} wins: {player2_wins}\n")
+    
+    player1 = QLearningPlayer()
+    # train QLearningPlayer against RandomPlayer
+    print(f"---- Training {player1.name()} against {player3.name()} ----")
+    play_games(player1, player3, num_epochs=200)
+    
+    # test QLearningPlayer against RandomPlayer
+    if isinstance(player1, QLearningPlayer):
+        player1.exploration_prob = 0
+    print(f"---- Testing {player1.name()} against {player3.name()} ----")
+    player1_wins, player3_wins = play_games(player1, player3, num_epochs=100)
+    print(f"{player1.name()} wins: {player1_wins}")
+    print(f"{player3.name()} wins: {player3_wins}\n")
+    
+    # GeneticPlayer against RandomPlayer
+    print(f"---- Testing {player2.name()} against {player3.name()} ----")
+    player2_wins, player3_wins = play_games(player2, player3, num_epochs=100)
+    print(f"{player2.name()} wins: {player2_wins}")
+    print(f"{player3.name()} wins: {player3_wins}\n")
+    
+    # GeneticPlayer against GeneticPlayer without memory
+    print(f"---- Testing {player2.name()} against {player4.name()} ----")
+    player2_wins, player4_wins = play_games(player2, player4, num_epochs=100)
+    print(f"{player2.name()} wins: {player2_wins}")
+    print(f"{player4.name()} wins: {player4_wins}\n")
+    
+    # GeneticPlayer without memory against RandomPlayer
+    print(f"---- Testing {player4.name()} against {player3.name()} ----")
+    player4_wins, player3_wins = play_games(player4, player3, num_epochs=100)
+    print(f"{player4.name()} wins: {player4_wins}")
+    print(f"{player3.name()} wins: {player3_wins}\n")
+    
+    end_time = time.time()
+    print(f"---- Total execution time {end_time - start_time} seconds ----")
+
 
 if __name__ == '__main__':
-    # time_start = time.time()
-    # genetic_algorithm_strategy()
-    # time_end = time.time()
-    # print(f"Time elapsed: {(time_end - time_start):.2f}")
-    player1 = QLearningPlayer(0.3, 0.7, 0.3)
-    player2 = RandomPlayer()
-    # game = Game()
-    # winner = game.play(player1, player2)
-    # winner = "Q_learn" if winner == 0 else "Random"
-    # print(winner)
-    q_learn_strategy(player1, player2)
-    q_learn_strategy(player1, player2, test=True, epochs=100)
-    
+    main()
