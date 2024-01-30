@@ -4,9 +4,7 @@ import numpy as np
 from game import Move, Game
 
 def verifie_move(from_pos: tuple[int, int], slide: Move, game: Game) -> bool:
-    """
-        It checks if the move is valid, an invalid move is useless, so there is no point in computing it
-    """
+    """ It checks if the move is valid, an invalid move is useless, so there is no point in computing it. """
     from_pos = (from_pos[1], from_pos[0])
     player_id = game.get_current_player()
     
@@ -49,9 +47,7 @@ def verifie_move(from_pos: tuple[int, int], slide: Move, game: Game) -> bool:
     return acceptable
 
 def simulate_move(from_pos: tuple[int, int], slide: Move, game: 'Game') -> np.ndarray | None:
-    """
-        It computes the next board after the action is taken
-    """
+    """ It computes the next board after the action is taken. """
     copy_game = deepcopy(game)
     acceptable = verifie_move(from_pos, slide, copy_game)
     

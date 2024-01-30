@@ -6,6 +6,7 @@ from tqdm import tqdm
 import time
 
 def play_game(args):
+    """ Play a single game of tic-tac-toe. """
     player_1, player_2 = args
     game = Game()
     winner = game.play(player_1, player_2)
@@ -17,6 +18,7 @@ def play_game(args):
     return winner
 
 def play_games(player1: Player, player2: Player, num_epochs: int = 100):
+    """ Play a number of games of tic-tac-toe. """
     args_list = [(player1, player2) for _ in range(num_epochs)]
     
     results = []
@@ -29,6 +31,7 @@ def play_games(player1: Player, player2: Player, num_epochs: int = 100):
     return player1_wins, player2_wins
 
 def main():
+    """ Main function. """
     start_time = time.time()
     player1 = QLearningPlayer()
     player2 = GeneticPlayer()

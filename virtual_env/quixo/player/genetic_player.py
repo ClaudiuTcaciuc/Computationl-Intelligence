@@ -11,11 +11,13 @@ class GeneticPlayer(Player):
         self.memory = memory
     
     def name(self) -> str:
+        """ Returns the name of the player. """
         if self.memory:
             return "Genetic Player with Memory"
         return "Genetic Player without Memory"
     
     def make_move(self, game: 'Game') -> tuple[tuple[int, int], Move]:
+        """ Returns the best move for the current game state. """
         current_board = tuple(map(tuple, game.get_board()))
         
         population = self.__generate_random_population(game)
@@ -38,6 +40,7 @@ class GeneticPlayer(Player):
         return best_from_pos, best_slide
     
     def __generate_random_population(self, game: 'Game') -> list[tuple[tuple[int, int], Move]]:
+        """ Generate a random population of moves. """
         population = []
         for _ in range(self.population_size):
             while True:
@@ -48,7 +51,12 @@ class GeneticPlayer(Player):
                     break
         return population
     
-    def __evolve_population(self, population: list[tuple[tuple[int, int], Move]], game: 'Game') -> list[tuple[tuple[int, int], Move]]:        
+    def __evolve_population(self, population: list[tuple[tuple[int, int], Move]], game: 'Game') -> list[tuple[tuple[int, int], Move]]:
+        """ Evolve the population. 
+            - Select the best individuals from the population based on their fitness.
+            - Crossover the best individuals to create new offspring.
+            - Mutate the offspring.
+        """       
         sorted_population = sorted(population, key=lambda move: fitness(move[0], move[1], game), reverse=True)
         elite_size = int(self.population_size * 0.2)
         elite = sorted_population[:elite_size]
@@ -64,6 +72,7 @@ class GeneticPlayer(Player):
         return elite + mutated_offspring
     
     def __mutate(self, move: tuple[tuple[int, int], Move], game: Game) -> tuple[tuple[int, int], Move]:
+        """ Mutate the move -> randomly change the from_pos and slide."""
         mutation_rate = 0.2
         if random.uniform(0, 1) < mutation_rate:
             while True:
